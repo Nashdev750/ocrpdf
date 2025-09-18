@@ -5,9 +5,13 @@ import tempfile
 import subprocess
 import shutil
 import os
+import multiprocessing  # To detect CPU count
 
 API_KEY = "supersecretapikey"  # Replace with your own key
 MAX_FILE_SIZE = 200 * 1024 * 1024  # 200 MB in bytes
+
+# Auto-detect number of CPUs
+CPU_COUNT = multiprocessing.cpu_count()
 
 app = FastAPI(title="OCR PDF API", version="1.0")
 
@@ -37,18 +41,25 @@ async def ocr_pdf(file: UploadFile = File(...), x_api_key: str = Header(...)):
         input_path = input_pdf.name
     
     output_fd, output_path = tempfile.mkstemp(suffix=".pdf")
-    os.close(output_fd)  # Only need the path
+    os.close(output_fd)
 
     try:
-        # Run OCRmyPDF
+        # Run OCRmyPDF using all available CPUs
         subprocess.run(
-            ["ocrmypdf", "--jobs", "6", "--optimize", "3", "--fast-web-view", "1", input_path, output_path],
+            [
+                "ocrmypdf",
+                f"--jobs={CPU_COUNT}",   # Use all CPU cores
+                "--optimize", "3",
+                "--fast-web-view", "1",
+                input_path,
+                output_path
+            ],
             check=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE
         )
 
-        # Return searchable PDF as response
+        # Return searchable PDF
         with open(output_path, "rb") as f:
             pdf_bytes = f.read()
         return Response(content=pdf_bytes, media_type="application/pdf")
@@ -57,7 +68,6 @@ async def ocr_pdf(file: UploadFile = File(...), x_api_key: str = Header(...)):
         return {"error": f"OCR failed: {e.stderr.decode()}"}
 
     finally:
-        # Clean up
         if os.path.exists(input_path):
             os.remove(input_path)
         if os.path.exists(output_path):
