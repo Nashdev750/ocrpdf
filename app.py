@@ -42,7 +42,7 @@ async def ocr_pdf(file: UploadFile = File(...), x_api_key: str = Header(...)):
     try:
         # Run OCRmyPDF
         subprocess.run(
-            ["ocrmypdf", "--optimize", "3", "--fast-web-view", "1", input_path, output_path],
+            ["ocrmypdf", "--jobs", "6", "--optimize", "3", "--fast-web-view", "1", input_path, output_path],
             check=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE
