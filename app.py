@@ -48,9 +48,10 @@ async def ocr_pdf(file: UploadFile = File(...), x_api_key: str = Header(...)):
         subprocess.run(
             [
                 "ocrmypdf",
-                f"--jobs={CPU_COUNT}",   # Use all CPU cores
-                "--optimize", "3",
-                "--fast-web-view", "1",
+                f"--jobs=6",   # Use all CPU cores
+                "--optimize", "2",
+                "--fast-web-view", "0",
+                "-r", "300",
                 input_path,
                 output_path
             ],
