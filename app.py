@@ -49,6 +49,7 @@ async def ocr_pdf(file: UploadFile = File(...), x_api_key: str = Header(...)):
             [
                 "ocrmypdf",
                 f"--jobs=6",   # Use all CPU cores
+                "--skip-text", 
                 "--optimize", "2",
                 "--fast-web-view", "1",
                 input_path,
