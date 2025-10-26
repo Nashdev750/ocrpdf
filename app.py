@@ -40,11 +40,13 @@ def is_pdf_searchable_fast(path: str, sample_pages: int = 2) -> bool:
         for i in range(pages_to_check):
             text = reader.pages[i].extract_text()
             if text and text.strip():
+                print("searchable")
                 return True
+        print("none searchable")        
         return False
     except Exception:
         print('Unable to check is is searchable')
-        return False
+       # return False
 
 
 # ---------------- OCR Endpoint ----------------
@@ -70,8 +72,7 @@ async def ocr_pdf(file: UploadFile = File(...), x_api_key: str = Header(...)):
         subprocess.run(
             [
                 "ocrmypdf",
-                f"--jobs={CPU_COUNT}",
-                "--skip-text",  # safety fallback
+                "--jobs=6",
                 "--optimize", "2",
                 "--fast-web-view", "1",
                 input_path,
